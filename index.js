@@ -407,23 +407,4 @@ async function connectToWA() {
   // Your WhatsApp connection logic here
 }
 
-//============================================================================
-app.get("/", (req, res) => {
-  res.send("hey, ❤️𝐑_𝐎_𝐁_𝐈_𝐍❤️ started✅");
-});
 
-// ✅ Define port before using it
-const port = process.env.PORT || 8000;
-
-app.listen(port, () => {
-  console.log(`Server listening on port http://localhost:${port}`);
-});
-
-// ✅ Call `connectToWA()` after making sure it's defined
-setTimeout(() => {
-  if (typeof connectToWA === "function") {
-    connectToWA();
-  } else {
-    console.error("⚠️ connectToWA function is not defined!");
-  }
-}, 4000);
