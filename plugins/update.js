@@ -12,7 +12,7 @@ cmd({
     filename: __filename
 }, async (conn, mek, m, { from, reply }) => {
     try {
-        const repoUrl = 'https://github.com/Yutsara4max/DINUWH-MD+git'; // لینک مخزن گیت‌هاب
+        const repoUrl = 'https://github.com/Yutsara4max/DINUWH-MD'; // لینک مخزن گیت‌هاب
         const targetFolder = 'plugins'; // پوشه‌ای که باید به‌روز شود
 
         // بررسی وجود پوشه هدف
