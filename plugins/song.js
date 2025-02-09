@@ -5,7 +5,7 @@ const { ytmp3 } = require("@vreden/youtube_scraper");
 cmd(
   {
     pattern: "song",
-    alias: "ytmp3", // Add a comma here
+    alias: "ytmp3",
     react: "🎵",
     desc: "Download Song",
     category: "download",
@@ -76,19 +76,19 @@ cmd(
   ⬇️ *Fetching & Downloading...*  
 ╚═══════════════════════════╝  
 
-🚀 *𝚙𝚘𝚠𝚎𝚛𝚍 𝚋𝚢 𝚍𝚒𝚗𝚞𝚠𝚑 𝚖𝚍*  
+🚀 *𝚙𝚘𝚠𝚎𝚛𝚎𝚍 𝚋𝚢 𝙳𝙸𝙽𝚄𝚆𝙷 𝙼𝙳*  
 🚀 *𝚖𝚊𝚔𝚎 𝚋𝚢 𝙳𝙸𝙽𝚄𝚆𝙷*
 `;
 
-      // Send externalAdReply with views under channel name
+      // Send externalAdReply with views under channel name (NO DUPLICATION)
       await robin.sendMessage(
         from,
         {
           text: desc,
           contextInfo: {
             externalAdReply: {
-              title: "𝙳𝙸𝙽𝚄𝚆 𝙼𝙳 𝚃𝙴𝙲𝙷 𝙲𝙷𝙰𝙽𝙽𝙴𝙻",
-              body: `👀 Views: ${data.views}`, // Views count below the channel name
+              title: "𝙳𝙸𝙽𝚄𝚆𝙷 𝙼𝙳 𝚃𝙴𝙲𝙷 𝙲𝙷𝙰𝙽𝙽𝙴𝙻",
+              body: `👀 Views: ${data.views}`,
               thumbnail: { url: data.thumbnail },
               sourceUrl: "https://whatsapp.com/channel/0029Vat7xHl7NoZsrUVjN844",
               mediaType: 1,
@@ -96,13 +96,6 @@ cmd(
             },
           },
         },
-        { quoted: mek }
-      );
-
-      // Send metadata thumbnail message
-      await robin.sendMessage(
-        from,
-        { image: { url: data.thumbnail }, caption: desc },
         { quoted: mek }
       );
 
