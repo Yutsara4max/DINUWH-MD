@@ -1,15 +1,12 @@
 {
-  "name": "robin_bot",
+  "name": "DINUWH-MD",
   "version": "1.0.0",
   "description": "A WhatsApp bot created using Node.js",
   "main": "index.js",
-  "engines": {
-    "node": "18.x"
-  },
   "scripts": {
-    "start": "pm2 start index.js --deep-monitoring --attach --name robin_bot",
-    "stop": "pm2 stop robin_bot",
-    "restart": "pm2 restart robin_bot"
+    "start": "pm2 start index.js --deep-monitoring --attach --name dinuwh_bot",
+    "stop": "pm2 stop dinuwh_bot",
+    "restart": "pm2 restart dinuwh_bot"
   },
   "dependencies": {
     "@whiskeysockets/baileys": "^6.7.9",
@@ -30,6 +27,7 @@
     "wa-sticker-formatter": "^4.4.4",
     "xml2js": "^0.6.2",
     "cheerio": "^1.0.0",
+    "@sl-code-lords/movie-api": "1.0.0",
     "@sl-code-lords/movie-api": "1.0.0"
   }
 }
