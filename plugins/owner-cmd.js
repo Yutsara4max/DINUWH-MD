@@ -102,16 +102,39 @@ async (conn, mek, m, { from, isOwner, reply }) => {
 });
 
 // 7. Get Bot JID
+
 cmd({
     pattern: "jid",
-    desc: "Get the bot's JID.",
-    category: "owner",
-    react: "🤖",
-    filename: __filename
-},
-async (conn, mek, m, { from, isOwner, reply }) => {
-    if (!isOwner) return reply("❌ уσυ αяє ησт тнє σωηєя!");
-    reply(`🤖 *Bot JID:* ${conn.user.jid}`);
+    alias: ["getjid"],
+    category: "utility",
+    desc: "Get the JID of a user",
+    usage: ".jid [reply/@number]",
+    react: "📩"
+}, 
+async (conn, mek, m, { args, reply }) => {
+    try {
+        let userJid;
+
+        if (m.quoted) {
+            // If the message is a reply, get JID from the quoted message
+            userJid = m.quoted.sender;
+        } else if (args[0]) {
+            // If a number is provided, format it into a WhatsApp JID
+            let number = args[0].replace(/[^0-9]/g, ""); 
+            if (!number) return reply("❌ *Invalid number format!*");
+            userJid = number + "@s.whatsapp.net";
+        } else {
+            // Default to the sender's JID
+            userJid = m.sender;
+        }
+
+        // Reply with the extracted JID
+        await conn.sendMessage(m.chat, { text: `*🔹 JID:* ${userJid}` }, { quoted: mek });
+
+    } catch (error) {
+        console.error(error);
+        reply("⚠️ *An error occurred while fetching the JID.*");
+    }
 });
 
 // 8. Group JIDs List
