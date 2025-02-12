@@ -3,9 +3,10 @@ const {cmd , commands} = require('../command')
 const { fetchJson } = require('../lib/functions')
 
 const apilink = 'https://api-pink-venom.vercel.app'
-const caption = `> ᴩʀᴏᴊᴇᴄᴛꜱ ᴏꜰ ᴅɪᴅᴜʟᴀ ʀᴀꜱʜᴍɪᴋᴀ`
+const caption = `*MADE BY DINUWH BOY*`
 
-let logo1 = 'https://en.ephoto360.com/create-a-blackpink-style-logo-with-members-signatures-810.html'
+
+let logo1 = `https://en.ephoto360.com/matrix-text-effect-154.html`
 let logo2 = `https://en.ephoto360.com/online-blackpink-style-logo-maker-effect-711.html`
 let logo3 = `https://en.ephoto360.com/create-a-blackpink-neon-logo-text-effect-online-710.html`
 let logo4 = `https://en.ephoto360.com/naruto-shippuden-logo-style-text-effect-online-808.html`
@@ -24,10 +25,11 @@ let logo16 = `https://en.ephoto360.com/create-free-fire-facebook-cover-online-56
 let logo17 = `https://en.ephoto360.com/write-text-on-wet-glass-online-589.html`
 let logo18 = `https://en.ephoto360.com/create-online-typography-art-effects-with-multiple-layers-811.html`
 let logo19 = `https://en.ephoto360.com/modern-gold-5-215.html`
-let logo20 = `https://en.ephoto360.com/matrix-text-effect-154.html`
+let logo20 = `https://en.ephoto360.com/create-a-blackpink-style-logo-with-members-signatures-810.html`
 
 cmd({
     pattern: "logolist",
+    alias: "logo",
     desc: "Create logos",
     category: "convert",
     filename: __filename
@@ -36,9 +38,9 @@ async(conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, send
     try {
 
 
-if(!q) return reply("*_Please give me a text._*")
+if(!q) return reply("*_ඔයාට ලෝගෝ එක හදාගන්න ඕනි නමත් ඕනි💀 උදා:- .logo DINUWH-MD._*")
 
-let logoMsg = `*_Didula MD V2 💚 LOGO MAKER_*
+let logoMsg = `*LOGO MAKER BY DINUWH MD🫣❤️*
 
 ───────────────────
 *Text :* ${q}
@@ -46,7 +48,7 @@ let logoMsg = `*_Didula MD V2 💚 LOGO MAKER_*
 
 _🔢 Reply Below Number :_
 
- 1 || Black Pink
+ 1 || Matrix
  2 || Black Pink 2
  3 || Black Pink 3
  4 || Naruto
@@ -65,13 +67,13 @@ _🔢 Reply Below Number :_
 17 || Text On Wet Glass
 18 || Typography
 19 || Modern Gold
-20 || Matrix
+20 || Black Pink
 
-> ᴩʀᴏᴊᴇᴄᴛꜱ ᴏꜰ ᴅɪᴅᴜʟᴀ ʀᴀꜱʜᴍɪᴋᴀ`
+*ඔනී ඩිසයින්ග් එකේ අන්කය දෙන්න😁👍*`
 
 const fdChannel = {
             newsletterJid: "@newsletter",
-            newsletterName: "Didula MD V2 💚",
+            newsletterName: "DINUWH-MD",
             serverMessageId: 999
           };
           const contextMsg = {
@@ -81,7 +83,7 @@ const fdChannel = {
             forwardedNewsletterMessageInfo: fdChannel
           };
           const msgBody = {
-            image: {url:`https://i.ibb.co/tC37Q7B/20241220-122443.jpg`},
+            image: {url:`https://i.ibb.co/YTQS67kR/DiNuWhMd.jpg`},
             caption: logoMsg,
             contextInfo: contextMsg
           };
@@ -218,7 +220,7 @@ await conn.sendMessage(from, { image :{url : `${data20.result.download_url}`}, c
                     
                     break;
                     default:
-                        reply("*_Invalid number.Please reply a valid number._*");
+                        reply("*_ගහන්න ඕනි නම්බර් එක්අක් ගහපම්😂 1-20 අතර🙂‍↔️._*");
                 }
 
             }
