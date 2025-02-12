@@ -31,7 +31,6 @@
     "fs-extra": "11.3.0",
     "@sl-code-lords/movie-api": "1.0.0",
     "@sl-code-lords/movie-api": "1.0.0",
-    "pixaldrain-sinhalasub": "git+https://github.com/DarkMakerofc/pixaldrain-sinhalasub.git",
     "whatsapp-autonews-sender": "git+https://github.com/DarkMakerofc/whatsapp-autonews-sender.git"
   }
 }
