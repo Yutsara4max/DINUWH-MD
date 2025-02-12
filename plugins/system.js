@@ -8,7 +8,7 @@ cmd(
     category: "utility",
     filename: __filename,
   },
-  async (robin, mek, m, { from, quoted, reply }) => {
+  async (robin, mek, m, { from, reply }) => {
     try {
       // Bot uptime calculation
       const uptime = process.uptime();
@@ -60,18 +60,22 @@ ${greeting} 👋
 > *°•° POWERED BY 𝙳𝙸𝙽𝚄𝚆𝙷 𝙼𝙳 ☊°_°🖤*
 `;
 
+      // Thumbnail URL - Check if valid
+      const thumbnailUrl = "https://i.ibb.co/CsQd4sTP/8060.jpg"; // Replace with a valid image
+
       // Sending System Info with Photo and Channel Preview
       return await robin.sendMessage(
         from,
         {
+          image: { url: thumbnailUrl }, // 🖼 Fixing media type issue
           caption: message,
           contextInfo: {
             externalAdReply: {
               title: "𝙳𝙸𝙽𝚄𝚆 𝙼𝙳 𝚃𝙴𝙲𝙷 𝙲𝙷𝙽𝙽𝙻",
               body: "© 𝙼𝙰𝙳𝙴 𝙱𝚈 𝙳𝙸𝙽𝚄𝚆ʜ ᴍᴅ 🫣",
-              thumbnailUrl: "https://i.ibb.co/CsQd4sTP/8060.jpg",
+              thumbnail: { url: thumbnailUrl }, // 🖼 Fixing media attachment
               sourceUrl: "https://whatsapp.com/channel/0029Vat7xHl7NoZsrUVjN844",
-              mediaType: 1,
+              mediaType: 2, // 🔥 Changed to 2 to fix the issue
               renderLargerThumbnail: true,
             },
           },
