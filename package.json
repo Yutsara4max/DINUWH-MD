@@ -31,6 +31,7 @@
     "@sl-code-lords/movie-api": "^1.0.0",
     "mime-type": "^5.0.2",
     "@vreden/youtube_scraper": "^1.2.5",
-    "@mrnima/tiktok-downloader": "1.0.0"
+    "@mrnima/tiktok-downloader": "1.0.0",
+    "g-i-s": "2.1.7"
   }
 }
