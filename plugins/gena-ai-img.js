@@ -3,7 +3,7 @@ const axios = require("axios");
 
 cmd(
   {
-    pattern: "genpfp",
+    pattern: "gen",
     alias: ["genboy", "genimg"],
     desc: "Generate AI profile picture",
     category: "fun",
