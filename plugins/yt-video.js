@@ -4,10 +4,8 @@ const yts = require('yt-search');
 
 const domain = `https://manul-official-api-site-4a4d3aa3fe73.herokuapp.com/ytmp4?url=`;
 
-//=============================================
-
 cmd({
-    pattern: 'video', // Command for video
+    pattern: 'video',
     alias: ["vplay"],
     desc: 'Download YouTube Videos',
     use: '.video <YouTube Title or URL>',
@@ -19,86 +17,84 @@ async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, sen
     try {
         if (!q) return reply('❌ *Please provide a valid YouTube title or URL!*');
 
-        // Search for YouTube video using the provided title or URL
+        console.log("🔍 Searching for video:", q);
         const yt = await yts(q);
-        const ytsResult = yt.videos[0]; // Selecting the first result
+        console.log("🔍 Search results:", yt);
 
-        // Get the download URLs for different resolutions
+        if (!yt.videos.length) {
+            return reply('❌ *No videos found. Please try another search query.*');
+        }
+
+        const ytsResult = yt.videos[0];
+        console.log("✅ Selected video:", ytsResult.url);
+
         const ytdl = await fetchJson(`${domain}${ytsResult.url}`);
-        const video240p = ytdl.download['240p'];
-        const video360p = ytdl.download['360p'];
-        const video480p = ytdl.download['480p'];
-        const video720p = ytdl.download['720p'];
-        const videoTitle = ytsResult.title;
-        const videoAuthor = ytsResult.author.name;
-        const videoViews = ytsResult.views;
-        const videoDuration = ytsResult.timestamp;
-        const videoThumbnail = ytsResult.thumbnail;
+        console.log("📥 Video Download Data:", ytdl);
 
-        // Create message with formatted details
-        let desc = `◈     *SYKO VIDEO DOWNLOADER*     ◈
-┌───────────────────
-├ *ℹ️ \`Title:\`* ${videoTitle}
-├ *👤 \`Author:\`* ${videoAuthor}
-├ *👁️‍🗨️ \`Views:\`* ${videoViews}
-├ *🕘 \`Duration:\`* ${videoDuration}
-├ *🔗 \`Url:\`* ${ytsResult.url}
-└───────────────────
+        if (!ytdl.download) {
+            return reply('❌ *Failed to fetch download links. API might be down.*');
+        }
 
-> *🔢 SELECT THE VIDEO QUALITY BELOW!*
+        const video240p = ytdl.download['240p'] || null;
+        const video360p = ytdl.download['360p'] || null;
+        const video480p = ytdl.download['480p'] || null;
+        const video720p = ytdl.download['720p'] || null;
 
-*1.1 📹 - 240p*
+        if (!video240p && !video360p && !video480p && !video720p) {
+            return reply('❌ *No downloadable video links found!*');
+        }
 
-*1.2 📹 - 360p*
+        const desc = `*🎥 Video Downloader*
+📌 *Title:* ${ytsResult.title}
+👤 *Author:* ${ytsResult.author.name}
+👁️ *Views:* ${ytsResult.views}
+⏳ *Duration:* ${ytsResult.timestamp}
+🔗 *URL:* ${ytsResult.url}
 
-*1.3 📹 - 480p*
+> *Choose video quality below:*
+1️⃣ - 240p
+2️⃣ - 360p
+3️⃣ - 480p
+4️⃣ - 720p`;
 
-*1.4 📹 - 720p*`;
+        const messageSent = await conn.sendMessage(from, { image: { url: ytsResult.thumbnail }, caption: desc }, { quoted: mek });
 
-        // Send the message with the video details and options
-        const vv = await conn.sendMessage(from, { image: { url: videoThumbnail }, caption: desc }, { quoted: mek });
-
-        // Listen for the user selection in the chat
         conn.ev.on('messages.upsert', async (msgUpdate) => {
             const msg = msgUpdate.messages[0];
             if (!msg.message || !msg.message.extendedTextMessage) return;
 
             const selectedOption = msg.message.extendedTextMessage.text.trim();
 
-            if (msg.message.extendedTextMessage.contextInfo && msg.message.extendedTextMessage.contextInfo.stanzaId === vv.key.id) {
-                let mass, videoUrl;
-
+            if (msg.message.extendedTextMessage.contextInfo && msg.message.extendedTextMessage.contextInfo.stanzaId === messageSent.key.id) {
+                let videoUrl;
                 switch (selectedOption) {
-                    case '1.1':
+                    case '1️⃣':
                         videoUrl = video240p;
                         break;
-                    case '1.2':
+                    case '2️⃣':
                         videoUrl = video360p;
                         break;
-                    case '1.3':
+                    case '3️⃣':
                         videoUrl = video480p;
                         break;
-                    case '1.4':
+                    case '4️⃣':
                         videoUrl = video720p;
                         break;
                     default:
-                        reply("❌ Invalid option selected. Please choose a valid option.");
-                        return;
+                        return reply("❌ Invalid option. Please select a valid one.");
                 }
 
-                // React with ⬇️ when uploading starts
-                mass = await conn.sendMessage(from, { image: { url: videoThumbnail } });
+                if (!videoUrl) return reply("❌ *Selected resolution is unavailable!*");
 
-                // Upload and send the selected video
-                await conn.sendMessage(from, { video: { url: videoUrl }, caption: `> *Powered by Syko Video Downloader*`, mimetype: 'video/mp4' }, { quoted: mass });
+                const sent = await conn.sendMessage(from, { image: { url: ytsResult.thumbnail } });
+                await conn.sendMessage(from, { video: { url: videoUrl }, caption: `🎥 *Downloaded from Syko Video Downloader*`, mimetype: 'video/mp4' }, { quoted: sent });
 
-                // React with ✅ once the file has been uploaded and sent
                 await conn.sendMessage(from, { react: { text: '✅', key: msg.key } });
             }
         });
 
     } catch (e) {
-        console.error(e);
+        console.error("❌ Error Occurred:", e);
         await conn.sendMessage(from, { react: { text: '❌', key: mek.key } });
         reply('❌ An error occurred while processing your request.');
     }
