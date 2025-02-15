@@ -1,46 +1,39 @@
-const { cmd, commands } = require('../command');
-const scraper = require("../lib/scraperd");
-const axios = require('axios');
-const fetch = require('node-fetch');
-const { fetchJson, getBuffer } = require('../lib/functions');
-const { lookup } = require('mime-types');
-const fs = require('fs');
-const path = require('path');
+const { cmd, commands } = require('../command'); 
+const { fetchJson } = require('../lib/functions');
+const chalk = require('chalk');
 
-//Apk Download
 cmd({
-    pattern: "apk",
-    desc: "Downloads Apk",
-    use: ".apk <app_name>",
-    react: "📥",
-    category: "download",
+    pattern: 'apk',
+    desc: 'Download APK from BK9',
+    category: 'download',
     filename: __filename
-},
-async (conn, mek, m, { from, quoted, body, q, reply }) => {
-    const appId = q.trim();
-    if (!appId) return reply(`Please provide an app name`);
-    
-    reply("_Downloading " + appId + "_");
-    
+}, async (client, message, args, extra) => {
     try {
-        const appInfo = await scraper.aptoideDl(appId);
-        const buff = await getBuffer(appInfo.link);
-        
-        if (!buff || !appInfo.appname) {
-            return await conn.sendMessage(from, { react: { text: '❌', key: mek.key } });
-        }
-        
-        await conn.sendMessage(
-            from,
-            { document: buff, caption: `*Didula MD V2 💚*`, mimetype: "application/vnd.android.package-archive", filename: `${appInfo.appname}.apk` },
-            { quoted: mek }
-        );
-        
-        await conn.sendMessage(from, { react: { text: '✅', key: mek.key } });
-        reply("*_Download Success_*");
-    } catch (e) {
-        console.log(e);
-        await conn.sendMessage(from, { react: { text: '❌', key: mek.key } });
-        reply(`Error: ${e.message}`);
+        let { from, reply, q } = extra;
+
+        if (!q) return reply('*Provide an app name!*');
+
+        // Search for the APK
+        let searchResult = await fetchJson(`https://bk9.fun/search/apk?q=${q}`);
+        if (!searchResult || !searchResult.name) return reply('*No results found!*');
+
+        // Fetch the download link
+        let apkData = await fetchJson(`https://bk9.fun/download/apk?id=${searchResult.name[0].id}`);
+        if (!apkData || !apkData.name || !apkData.name.dllink) return reply('*Download link not found!*');
+
+        // Notify user
+        reply('*♻️ DOWNLOADING... 🪄*\n> POWERED BY DINUWH MD');
+
+        // Send APK
+        await client.sendMessage(from, {
+            document: { url: apkData.name.dllink },
+            fileName: apkData.name.name,
+            mimetype: 'application/vnd.android.package-archive',
+            caption: '> *CREATED BY DINUWH MD™* 🪀'
+        }, { quoted: message });
+
+    } catch (error) {
+        console.log(chalk.red('ERROR:'), error);
+        reply('*An error occurred while downloading the APK!*');
     }
 });
