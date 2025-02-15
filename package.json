@@ -34,6 +34,7 @@
     "@mrnima/tiktok-downloader": "1.0.0",
     "g-i-s": "2.1.7",
     "@sl-code-lords/text-pro-me": "1.0.0",
-    "mrnima-moviedl": "1.0.0"
+    "mrnima-moviedl": "1.0.0",
+    "chalk": "5.4.1"
   }
 }
