@@ -2,7 +2,7 @@ const { cmd, commands } = require('../command');
 const { fetchJson } = require('../lib/functions');
 const yts = require('yt-search');
 
-const domain = `https://manul-official-api-site-4a4d3aa3fe73.herokuapp.com/ytmp4?url=`;
+const domain = `https://manul-ofc-ytdl-api-b29a5069c64a.herokuapp.com/yt-download?url=https://youtu.be/45ODOS6EP5M?si=l3Q3Jqg275I1_Asg&format=webm`;
 
 cmd({
     pattern: 'video',
