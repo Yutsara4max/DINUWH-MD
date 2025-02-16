@@ -1,175 +1,205 @@
-require("./all/global")
+const {
+default: makeWASocket,
+useMultiFileAuthState,
+DisconnectReason,
+jidNormalizedUser,
+getContentType,
+fetchLatestBaileysVersion,
+Browsers
+} = require('@whiskeysockets/baileys')
 
-const func = require("./all/place")
-const readline = require("readline")
-const yargs = require('yargs/yargs')
-const _ = require('lodash')
-const usePairingCode = true
-const question = (text) => {
-const rl = readline.createInterface({
-input: process.stdin,
-output: process.stdout
-})
-return new Promise((resolve) => {
-rl.question(text, resolve)
-})}
+const { getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson } = require('./lib/functions')
+const fs = require('fs')
+const P = require('pino')
+const config = require('./config')
+const qrcode = require('qrcode-terminal')
+const util = require('util')
+const { sms,downloadMediaMessage } = require('./lib/msg')
+const axios = require('axios')
+const { File } = require('megajs')
+const prefix = '.'
 
+const ownerNumber = ['94701515609']
 
-async function startSesi() {
-const store = makeInMemoryStore({ logger: pino().child({ level: 'silent', stream: 'store' }) })
-const { state, saveCreds } = await useMultiFileAuthState(`./session`)
-const { version, isLatest } = await fetchLatestBaileysVersion()
+//===================SESSION-AUTH============================
+if (!fs.existsSync(__dirname + '/auth_info_baileys/creds.json')) {
+if(!config.SESSION_ID) return console.log('Please add your session to SESSION_ID env !!')
+const sessdata = config.SESSION_ID
+const filer = File.fromURL(`https://mega.nz/file/${sessdata}`)
+filer.download((err, data) => {
+if(err) throw err
+fs.writeFile(__dirname + '/auth_info_baileys/creds.json', data, () => {
+console.log("King_Hansa Session downloaded 🖤")
+})})}
 
-console.log(chalk.white.bold(`
-â•”â•¦â•¦â•¦â•¦â•¦â•¦â•¦â•¦â•¦â•¦â•—
-â• â•¬â•¬â•¬â•¬â•¬â•¬â•¬â•¬â•¬â•¬â•£
-â• â•¬â•¬â–ˆâ•¬â•¬â•¬â•¬â–ˆâ•¬â•¬â•£
-â• â•¬â•¬â•¬â•¬â•¬â•¬â•¬â•¬â•¬â•¬â•£
-â• â•¬â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•¬â•£
-â• â•¬â–ˆâ•¬â•¬â•¬â•¬â•¬â•¬â–ˆâ•¬â•£
-â•šâ•©â•©â•©â•©â•©â•©â•©â•©â•©â•©â• â €â €â €â €â €
+const express = require("express");
+const app = express();
+const port = process.env.PORT || 8000;
 
-${chalk.green.bold("Information about bot")}         
--> Creator: Lezz Offcial
--> Name Bot: Nicha MD
-`));
+//=============================================
 
-const connectionOptions = {
-version,
-keepAliveIntervalMs: 30000,
-printQRInTerminal: !usePairingCode,
-logger: pino({ level: "fatal" }),
-auth: state,
-browser: ["Ubuntu","Chrome","20.0.04"],
-getMessage: async (key) => {
-if (store) {
-const msg = await store.loadMessage(key.remoteJid, key.id, undefined)
-return msg?.message || undefined
-}
-return {
-conversation: 'WhatsApp Bot By FlowFalcon'
-}}
-}
+async function connectToWA() {
+console.log("Connecting King_Hansa 🖤...");
+const { state, saveCreds } = await useMultiFileAuthState(__dirname + '/auth_info_baileys/')
+var { version } = await fetchLatestBaileysVersion()
 
-const ade = func.makeWASocket(connectionOptions)
-if (usePairingCode && !ade.authState.creds.registered) {
-const phoneNumber = await question(color('Masukan Nomor Whatsapp Awali dengan 62 :\n', 'red'));
-const code = await ade.requestPairingCode(phoneNumber.trim())
-console.log(`${chalk.redBright('Your Pairing Code')} : ${code}`)
-}
-store?.bind(ade.ev)
-
-ade.ev.on('connection.update', async (update) => {
+const conn = makeWASocket({
+        logger: P({ level: 'silent' }),
+        printQRInTerminal: false,
+        browser: Browsers.macOS("Firefox"),
+        syncFullHistory: true,
+        auth: state,
+        version
+        })
+    
+conn.ev.on('connection.update', (update) => {
 const { connection, lastDisconnect } = update
 if (connection === 'close') {
-const reason = new Boom(lastDisconnect?.error)?.output.statusCode
-console.log(color(lastDisconnect.error, 'deeppink'))
-if (lastDisconnect.error == 'Error: Stream Errored (unknown)') {
-process.exit()
-} else if (reason === DisconnectReason.badSession) {
-console.log(color(`Bad Session File, Please Delete Session and Scan Again`))
-process.exit()
-} else if (reason === DisconnectReason.connectionClosed) {
-console.log(color('[SYSTEM]', 'white'), color('Connection closed, reconnecting...', 'deeppink'))
-process.exit()
-} else if (reason === DisconnectReason.connectionLost) {
-console.log(color('[SYSTEM]', 'white'), color('Connection lost, trying to reconnect', 'deeppink'))
-process.exit()
-} else if (reason === DisconnectReason.connectionReplaced) {
-console.log(color('Connection Replaced, Another New Session Opened, Please Close Current Session First'))
-ade.logout()
-} else if (reason === DisconnectReason.loggedOut) {
-console.log(color(`Device Logged Out, Please Scan Again And Run.`))
-ade.logout()
-} else if (reason === DisconnectReason.restartRequired) {
-console.log(color('Restart Required, Restarting...'))
-await startSesi()
-} else if (reason === DisconnectReason.timedOut) {
-console.log(color('Connection TimedOut, Reconnecting...'))
-startSesi()
+if (lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut) {
+connectToWA()
 }
-} else if (connection === "connecting") {
-console.log(color('Menghubungkan . . . '))
-} else if (connection === "open") {
-let teksnotif = ` Lapor kak Bot Berhasil Terhubung`
-ade.sendMessage( global.owner+"@s.whatsapp.net", {text: teksnotif})
-console.log(color('Bot Berhasil Tersambung'))
+} else if (connection === 'open') {
+console.log('King_Hansa Is Installing 🖤... ')
+const path = require('path');
+fs.readdirSync("./plugins/").forEach((plugin) => {
+if (path.extname(plugin).toLowerCase() == ".js") {
+require("./plugins/" + plugin);
+}
+});
+console.log('Plugins installed successful ✅')
+console.log('King_Hansa connected to whatsapp ✅')
+
+let up = `
+🚀 *𝐊𝐢𝐧𝐠_𝐇𝐚𝐧𝐬𝐚 𝐌𝐃 𝐂𝐨𝐧𝐧𝐞𝐜𝐭𝐞𝐝 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲!* ✅ 
+
+-- *🤍🖤 𝐖𝐞𝐥𝐜𝐨𝐦𝐞 𝐭𝐨 𝐊𝐢𝐧𝐠_𝐇𝐚𝐧𝐬𝐚 𝐌𝐃! 🖤🤍*
+
+*🔹 PREFIX:** ${prefix}
+
+*🔹 OWNER:**  ${ownerNumber}
+
+--- Thank you for using *King_Hansa MD*. 
+We're here to make your experience enjoyable and seamless. 
+If you need any help or have questions, don't hesitate to ask. 
+
+*Enjoy your time with us!* 😊 `;
+
+conn.sendMessage(config.BOT_NUMBER + "@s.whatsapp.net", { image: { url: `https://telegra.ph/file/cd454f186aa11281fdbaa.png` }, caption: up })
+
 }
 })
+conn.ev.on('creds.update', saveCreds)  
 
-ade.ev.on('call', async (user) => {
-if (!global.anticall) return
-for (let ff of user) {
-if (ff.isGroup == false) {
-if (ff.status == "offer") {
-let sendcall = await ade.sendMessage(ff.from, {text: `@${ff.from.split("@")[0]} Maaf Kamu Akan Saya Block Karna Ownerbot Menyalakan Fitur *Anticall*\nJika Tidak Sengaja Segera Hubungi Owner Untuk Membuka Blokiran Ini`, contextInfo: {mentionedJid: [ff.from], externalAdReply: {showAdAttribution: true, thumbnail: fs.readFileSync("./media/warning.jpg"), title: "ï½¢ CALL DETECTED ï½£", previewType: "PHOTO"}}}, {quoted: null})
-ade.sendContact(ff.from, [owner], "Developer WhatsApp Bot", sendcall)
-await sleep(10000)
-await ade.updateBlockStatus(ff.from, "block")
-}}
-}})
-
-ade.ev.on('messages.upsert', async (chatUpdate) => {
-try {
-m = chatUpdate.messages[0]
-if (!m.message) return
-m.message = (Object.keys(m.message)[0] === 'ephemeralMessage') ? m.message.ephemeralMessage.message : m.message
-if (m.key && m.key.remoteJid === 'status@broadcast') return ade.readMessages([m.key])
-if (!ade.public && m.key.remoteJid !== global.owner+"@s.whatsapp.net" && !m.key.fromMe && chatUpdate.type === 'notify') return
-if (m.key.id.startsWith('BAE5') && m.key.id.length === 16) return
-if (global.autoread) ade.readMessages([m.key])
-m = func.smsg(ade, m, store)
-require("./case.js")(ade, m, store)
-} catch (err) {
-console.log(err)
+conn.ev.on('messages.upsert', async(mek) => {
+mek = mek.messages[0]
+if (!mek.message) return	
+mek.message = (getContentType(mek.message) === 'ephemeralMessage') ? mek.message.ephemeralMessage.message : mek.message
+if (mek.key && mek.key.remoteJid === 'status@broadcast' && config.AUTO_READ_STATUS === "true"){
+await conn.readMessages([mek.key])
 }
+const m = sms(conn, mek)
+const type = getContentType(mek.message)
+const content = JSON.stringify(mek.message)
+const from = mek.key.remoteJid
+const quoted = type == 'extendedTextMessage' && mek.message.extendedTextMessage.contextInfo != null ? mek.message.extendedTextMessage.contextInfo.quotedMessage || [] : []
+const body = (type === 'conversation') ? mek.message.conversation : (type === 'extendedTextMessage') ? mek.message.extendedTextMessage.text : (type == 'imageMessage') && mek.message.imageMessage.caption ? mek.message.imageMessage.caption : (type == 'videoMessage') && mek.message.videoMessage.caption ? mek.message.videoMessage.caption : ''
+const isCmd = body.startsWith(prefix)
+const command = isCmd ? body.slice(prefix.length).trim().split(' ').shift().toLowerCase() : ''
+const args = body.trim().split(/ +/).slice(1)
+const q = args.join(' ')
+const isGroup = from.endsWith('@g.us')
+const sender = mek.key.fromMe ? (conn.user.id.split(':')[0]+'@s.whatsapp.net' || conn.user.id) : (mek.key.participant || mek.key.remoteJid)
+const senderNumber = sender.split('@')[0]
+const botNumber = conn.user.id.split(':')[0]
+const pushname = mek.pushName || 'Sin Nombre'
+const isMe = botNumber.includes(senderNumber)
+const isOwner = ownerNumber.includes(senderNumber) || isMe
+const botNumber2 = await jidNormalizedUser(conn.user.id);
+const groupMetadata = isGroup ? await conn.groupMetadata(from).catch(e => {}) : ''
+const groupName = isGroup ? groupMetadata.subject : ''
+const participants = isGroup ? await groupMetadata.participants : ''
+const groupAdmins = isGroup ? await getGroupAdmins(participants) : ''
+const isBotAdmins = isGroup ? groupAdmins.includes(botNumber2) : false
+const isAdmins = isGroup ? groupAdmins.includes(sender) : false
+const reply = (teks) => {
+conn.sendMessage(from, { text: teks }, { quoted: mek })
+}
+
+conn.sendFileUrl = async (jid, url, caption, quoted, options = {}) => {
+              let mime = '';
+              let res = await axios.head(url)
+              mime = res.headers['content-type']
+              if (mime.split("/")[1] === "gif") {
+                return conn.sendMessage(jid, { video: await getBuffer(url), caption: caption, gifPlayback: true, ...options }, { quoted: quoted, ...options })
+              }
+              let type = mime.split("/")[0] + "Message"
+              if (mime === "application/pdf") {
+                return conn.sendMessage(jid, { document: await getBuffer(url), mimetype: 'application/pdf', caption: caption, ...options }, { quoted: quoted, ...options })
+              }
+              if (mime.split("/")[0] === "image") {
+                return conn.sendMessage(jid, { image: await getBuffer(url), caption: caption, ...options }, { quoted: quoted, ...options })
+              }
+              if (mime.split("/")[0] === "video") {
+                return conn.sendMessage(jid, { video: await getBuffer(url), caption: caption, mimetype: 'video/mp4', ...options }, { quoted: quoted, ...options })
+              }
+              if (mime.split("/")[0] === "audio") {
+                return conn.sendMessage(jid, { audio: await getBuffer(url), caption: caption, mimetype: 'audio/mpeg', ...options }, { quoted: quoted, ...options })
+              }
+            }
+if (isCmd && config.READ_CMD === "true") {
+              await conn.readMessages([mek.key])  // Mark command as read
+          }
+if(!isOwner && config.MODE === "private") return
+if(!isOwner && isGroup && config.MODE === "inbox") return
+if(!isOwner && !isGroup && config.MODE === "groups") return
+
+if (config.AUTO_VOICE === 'true') {
+const url = 'https://raw.githubusercontent.com/KING-HANSA/VOICE-KING-HANSA/main/Voice-Raw/KING-HANSA-VOICE'
+let { data } = await axios.get(url)
+for (vr in data){
+if((new RegExp(`\\b${vr}\\b`,'gi')).test(body)) conn.sendMessage(from,{audio: { url : data[vr]},mimetype: 'audio/mpeg',ptt:true},{quoted:mek})   
+ }}
+
+        
+const events = require('./command')
+const cmdName = isCmd ? body.slice(1).trim().split(" ")[0].toLowerCase() : false;
+if (isCmd) {
+const cmd = events.commands.find((cmd) => cmd.pattern === (cmdName)) || events.commands.find((cmd) => cmd.alias && cmd.alias.includes(cmdName))
+if (cmd) {
+if (cmd.react) conn.sendMessage(from, { react: { text: cmd.react, key: mek.key }})
+
+try {
+cmd.function(conn, mek, m,{from, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply});
+} catch (e) {
+console.error("[PLUGIN ERROR] " + e);
+}
+}
+}
+events.commands.map(async(command) => {
+if (body && command.on === "body") {
+command.function(conn, mek, m,{from, l, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply})
+} else if (mek.q && command.on === "text") {
+command.function(conn, mek, m,{from, l, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply})
+} else if (
+(command.on === "image" || command.on === "photo") &&
+mek.type === "imageMessage"
+) {
+command.function(conn, mek, m,{from, l, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply})
+} else if (
+command.on === "sticker" &&
+mek.type === "stickerMessage"
+) {
+command.function(conn, mek, m,{from, l, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply})
+}});
+//============================================================================ 
+
 })
-
-ade.ev.on('group-participants.update', async (anu) => {
-if (!global.welcome) return
-let botNumber = await ade.decodeJid(ade.user.id)
-if (anu.participants.includes(botNumber)) return
-try {
-let metadata = await ade.groupMetadata(anu.id)
-let namagc = metadata.subject
-let participants = anu.participants
-for (let num of participants) {
-let check = anu.author !== num && anu.author.length > 1
-let tag = check ? [anu.author, num] : [num]
-try {
-ppuser = await ade.profilePictureUrl(num, 'image')
-} catch {
-ppuser = 'https://telegra.ph/file/a059a6a734ed202c879d3.jpg'
 }
-if (anu.action == 'add') {
-ade.sendMessage(anu.id, {text: check ? `@${anu.author.split("@")[0]} Telah Menambahkan @${num.split("@")[0]} Ke Dalam Grup Ini` : `Hallo Kak @${num.split("@")[0]} Selamat Datang Di *${namagc}*`, 
-contextInfo: {mentionedJid: [...tag], externalAdReply: { thumbnailUrl: ppuser, title: 'Â© Welcome Message', body: '', renderLargerThumbnail: true, sourceUrl: linkgc, mediaType: 1}}})
-} 
-if (anu.action == 'remove') { 
-ade.sendMessage(anu.id, {text: check ? `@${anu.author.split("@")[0]} Telah Mengeluarkan @${num.split("@")[0]} Dari Grup Ini` : `@${num.split("@")[0]} Telah Keluar Dari Grup Ini`, 
-contextInfo: {mentionedJid: [...tag], externalAdReply: { thumbnailUrl: ppuser, title: 'Â© Leaving Message', body: '', renderLargerThumbnail: true, sourceUrl: linkgc, mediaType: 1}}})
-}
-if (anu.action == "promote") {
-ade.sendMessage(anu.id, {text: `@${anu.author.split("@")[0]} Telah Menjadikan @${num.split("@")[0]} Sebagai Admin Grup Ini`, 
-contextInfo: {mentionedJid: [...tag], externalAdReply: { thumbnailUrl: ppuser, title: 'Â© Promote Message', body: '', renderLargerThumbnail: true, sourceUrl: linkgc, mediaType: 1}}})
-}
-if (anu.action == "demote") {
-ade.sendMessage(anu.id, {text: `@${anu.author.split("@")[0]} Telah Memberhentikan @${num.split("@")[0]} Sebagai Admin Grup Ini`, 
-contextInfo: {mentionedJid: [...tag], externalAdReply: { thumbnailUrl: ppuser, title: 'Â© Demote Message', body: '', renderLargerThumbnail: true, sourceUrl: linkgc, mediaType: 1}}})
-}
-} 
-} catch (err) {
-console.log(err)
-}})
+app.get("/", (req, res) => {
+res.send("hey I am alive, King_Hansa Is started✅");
+});
+app.listen(port, () => console.log(`Server listening on port http://localhost:${port}`));
+setTimeout(() => {
+connectToWA()
+}, 4000);  
 
-ade.public = true
-
-ade.ev.on('creds.update', saveCreds)
-return ade
-}
-
-startSesi()
-
-process.on('uncaughtException', function (err) {
-console.log('Caught exception: ', err)
-})
