@@ -56,7 +56,7 @@ async function connectToWA() {
   const { state, saveCreds } = await useMultiFileAuthState(__dirname + "/auth_info_baileys/");
   var { version } = await fetchLatestBaileysVersion();
 
-  const conn = makeWASocket({
+  const robin = makeWASocket({
     logger: P({ level: "silent" }),
     printQRInTerminal: false,
     browser: Browsers.macOS("Firefox"),
@@ -65,7 +65,7 @@ async function connectToWA() {
     version,
   });
 
-  conn.ev.on("connection.update", (update) => {
+  robin.ev.on("connection.update", (update) => {
     const { connection, lastDisconnect } = update;
     if (connection === "close") {
       if (lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut) {
@@ -75,13 +75,13 @@ async function connectToWA() {
       console.log("✅ DINUWH MD bot connected successfully!");
 
       let message = `🔥 DINUWH MD Bot connected successfully!`;
-      conn.sendMessage(ownerNumber + "@s.whatsapp.net", { text: message });
+      robin.sendMessage(ownerNumber + "@s.whatsapp.net", { text: message });
     }
   });
 
-  conn.ev.on("creds.update", saveCreds);
+  robin.ev.on("creds.update", saveCreds);
 
-  conn.ev.on("messages.upsert", async (mek) => {
+  robin.ev.on("messages.upsert", async (mek) => {
     mek = mek.messages[0];
     if (!mek.message) return;
     mek.message =
@@ -92,12 +92,12 @@ async function connectToWA() {
     //================== STATUS AUTO-READ & REACT ==================
     if (mek.key && mek.key.remoteJid === "status@broadcast") {
       if (config.AUTO_READ_STATUS === "true") {
-        await conn.readMessages([mek.key]);
+        await robin.readMessages([mek.key]);
 
         const emojis = ['🧩', '🍉', '💜', '🌸', '🪴', '💊', '💫', '🍂', '🌟', '🎋', '😶‍🌫️', '🫀', '🧿', '👀', '🤖', '🚩', '🥰', '🗿', '💜', '💙', '🌝', '🖤', '💚'];
         const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
 
-        await conn.sendMessage(mek.key.remoteJid, {
+        await robin.sendMessage(mek.key.remoteJid, {
           react: {
             text: randomEmoji,
             key: mek.key,
@@ -107,7 +107,7 @@ async function connectToWA() {
       return;
     }
 
-    const m = sms(conn, mek);
+    const m = sms(robin, mek);
     const type = getContentType(mek.message);
     const from = mek.key.remoteJid;
     const quoted =
@@ -129,14 +129,14 @@ async function connectToWA() {
     const args = body.trim().split(/ +/).slice(1);
     const q = args.join(" ");
     const isGroup = from.endsWith("@g.us");
-    const sender = mek.key.fromMe ? conn.user.id.split(":")[0] + "@s.whatsapp.net" || conn.user.id : mek.key.participant || mek.key.remoteJid;
+    const sender = mek.key.fromMe ? robin.user.id.split(":")[0] + "@s.whatsapp.net" || robin.user.id : mek.key.participant || mek.key.remoteJid;
     const senderNumber = sender.split("@")[0];
-    const botNumber = conn.user.id.split(":")[0];
+    const botNumber = robin.user.id.split(":")[0];
     const pushname = mek.pushName || "No Name";
     const isMe = botNumber.includes(senderNumber);
     const isOwner = ownerNumber.includes(senderNumber) || isMe;
-    const botNumber2 = await jidNormalizedUser(conn.user.id);
-    const groupMetadata = isGroup ? await conn.groupMetadata(from).catch((e) => {}) : "";
+    const botNumber2 = await jidNormalizedUser(robin.user.id);
+    const groupMetadata = isGroup ? await robin.groupMetadata(from).catch((e) => {}) : "";
     const groupName = isGroup ? groupMetadata.subject : "";
     const participants = isGroup ? await groupMetadata.participants : "";
     const groupAdmins = isGroup ? await getGroupAdmins(participants) : "";
@@ -144,7 +144,7 @@ async function connectToWA() {
     const isAdmins = isGroup ? groupAdmins.includes(sender) : false;
 
     const reply = (teks) => {
-      conn.sendMessage(from, { text: teks }, { quoted: mek });
+      robin.sendMessage(from, { text: teks }, { quoted: mek });
     };
 
     //================== COMMANDS HANDLING ==================
@@ -154,10 +154,10 @@ async function connectToWA() {
       const cmd = events.commands.find((cmd) => cmd.pattern === cmdName) || events.commands.find((cmd) => cmd.alias && cmd.alias.includes(cmdName));
       if (cmd) {
         if (cmd.react)
-          conn.sendMessage(from, { react: { text: cmd.react, key: mek.key } });
+          robin.sendMessage(from, { react: { text: cmd.react, key: mek.key } });
 
         try {
-          cmd.function(conn, mek, m, {
+          cmd.function(robin, mek, m, {
             from,
             quoted,
             body,
