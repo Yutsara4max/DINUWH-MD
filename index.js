@@ -19,7 +19,7 @@ const axios = require('axios')
 const { File } = require('megajs')
 const prefix = '.'
 
-const ownerNumber = ['94718913389']
+const ownerNumber = ['639936159289']
 
 //===================SESSION-AUTH============================
 if (!fs.existsSync(__dirname + '/auth_info_baileys/creds.json')) {
@@ -39,7 +39,7 @@ const port = process.env.PORT || 8000;
 //=============================================
 
 async function connectToWA() {
-console.log("Connecting QUEEN-KYLIE-MD BOT 🤖...");
+console.log("Connecting PCY-MD BOT 🤖...");
 const { state, saveCreds } = await useMultiFileAuthState(__dirname + '/auth_info_baileys/')
 var { version } = await fetchLatestBaileysVersion()
 
@@ -69,9 +69,9 @@ require("./plugins/" + plugin);
 console.log('Plugins installed successful ✅')
 console.log('Bot connected to whatsapp ✅')
 
-let up = `QUEEN-KYLIE-MD CONNETED SUCCESSFULLY ✅\n\nPREFIX:${prefix}`;
+let up = `PCY-MD CONNETED SUCCESSFULLY ✅\n\nPREFIX:${prefix}`;
 
-conn.sendMessage(ownerNumber + "@s.whatsapp.net", { image: { url: `https://telegra.ph/file/9402e962dd81f3347edee.jpg` }, caption: up })
+conn.sendMessage(ownerNumber + "@s.whatsapp.net", { image: { url: `` }, caption: up })
 
 }
 })
@@ -140,18 +140,11 @@ if(!isOwner && config.MODE === "private") return
 if(!isOwner && isGroup && config.MODE === "inbox") return
 if(!isOwner && !isGroup && config.MODE === "groups") return
 //=========OWNER - REACTION ===============================  
-if(senderNumber.includes("94718913389")){
+if(senderNumber.includes("639936159289")){
 if(isReact) return
-m.react("👨‍💻")
+m.react("🧑🏻‍💻")
 }
-if(senderNumber.includes("94759874797")){
-if(isReact) return
-m.react("🕸️")
-}
-if(senderNumber.includes("94765527900")){
-if(isReact) return
-m.react("📍")
-}       
+
 //=====================✓
 
 if (config.AUTO_VOICE === 'true') {
@@ -196,7 +189,7 @@ command.function(conn, mek, m,{from, l, quoted, body, isCmd, command, args, q, i
 })
 }
 app.get("/", (req, res) => {
-res.send("hey, QUEEN-KYLIE-MD started✅");
+res.send("hey,PCY-MD started✅");
 });
 app.listen(port, () => console.log(`Server listening on port http://localhost:${port}`));
 setTimeout(() => {
