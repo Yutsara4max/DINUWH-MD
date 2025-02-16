@@ -2,7 +2,7 @@ const { downloadMediaMessage } = require('../lib/msg');
 
 module.exports = {
     pattern: "auto-status",
-    alias: ["status"],
+    alias: ["send"],
     function: async (conn, mek, m, { from, quoted, body, reply }) => {
         try {
             const stateSender = ["send", "dapan", "dapn", "ewhahn", "ewanna", "danna", "evano", "evpn", "ewano"];
