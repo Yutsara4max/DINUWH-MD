@@ -2,7 +2,7 @@ const { cmd, commands } = require('../command');
 const { fetchJson } = require('../lib/functions');
 const yts = require('yt-search');
 
-const domain = `https://dark-shan-yt.koyeb.app/download'`;
+const domain = `https://p.oceansaver.in/ajax/download.php?format=$';
 
 cmd({
     pattern: 'video',
