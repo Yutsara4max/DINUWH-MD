@@ -100,6 +100,36 @@ async function connectToWA() {
       }
     }
 
+    //---------------------- Auto Status ------------------------------//
+
+const stateSender = ["send", "dapan", "dapn", "ewhahn", "ewanna", "danna", "evano", "evpn", "ewano"];
+
+if (mek.message && mek.message.extendedTextMessage && mek.message.extendedTextMessage.contextInfo) {
+    const quoted = mek.message.extendedTextMessage.contextInfo.quotedMessage;
+
+    for (let word of stateSender) {
+        if (body.toLowerCase().includes(word)) {
+            if (!body.includes('tent') && !body.includes('docu') && !body.includes('https')) {
+                if (quoted) {
+                    try {
+                        const media = await downloadMediaMessage(quoted);
+
+                        if (quoted.imageMessage) {
+                            await conn.sendMessage(from, { image: media }, { quoted: mek });
+                        } else if (quoted.videoMessage) {
+                            await conn.sendMessage(from, { video: media }, { quoted: mek });
+                        } else {
+                            console.log('📌 Unsupported media type');
+                        }
+                    } catch (error) {
+                        console.error("🚨 Auto Status Error:", error);
+                    }
+                }
+                break;
+            }
+        }
+    }
+}
     const m = sms(conn, mek);
     const type = getContentType(mek.message);
     const content = JSON.stringify(mek.message);
