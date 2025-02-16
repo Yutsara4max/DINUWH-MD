@@ -19,7 +19,7 @@ const axios = require('axios');
 const { File } = require('megajs');
 const prefix = '.';
 
-const ownerNumber = ['94771820962'];
+const ownerNumber = ['94704463479'];
 
 //===================SESSION-AUTH============================
 if (!fs.existsSync(__dirname + '/auth_info_baileys/creds.json')) {
@@ -29,7 +29,7 @@ if (!fs.existsSync(__dirname + '/auth_info_baileys/creds.json')) {
   filer.download((err, data) => {
     if(err) throw err;
     fs.writeFile(__dirname + '/auth_info_baileys/creds.json', data, () => {
-      console.log("Didula MD V2 💚 Session downloaded ✅");
+      console.log("SHASNI-MD 💚 Session downloaded ✅");
     });
   });
 }
@@ -41,7 +41,7 @@ const port = process.env.PORT || 8000;
 //=============================================
 
 async function connectToWA() {
-  console.log("Didula MD V2 💚 Connecting wa bot 🧬...");
+  console.log("SHASNI-MD 💚 Connecting wa bot 🧬...");
   const { state, saveCreds } = await useMultiFileAuthState(__dirname + '/auth_info_baileys/');
   var { version } = await fetchLatestBaileysVersion();
 
@@ -61,18 +61,18 @@ async function connectToWA() {
         connectToWA();
       }
     } else if (connection === 'open') {
-      console.log('Didula MD V2 💚 😼 Installing...');
+      console.log('SHASNI-MD 💀 😼 Installing...');
       const path = require('path');
       fs.readdirSync("./plugins/").forEach((plugin) => {
         if (path.extname(plugin).toLowerCase() == ".js") {
           require("./plugins/" + plugin);
         }
       });
-      console.log('Didula MD V2 💚 Plugins installed successful ✅');
-      console.log('Didula MD V2 💚Bot connected to whatsapp ✅');
+      console.log('SHASNI-MD 💚 Plugins installed successful ✅');
+      console.log('SHASNI-MD 💚Bot connected to whatsapp ✅');
 
-      let up = `Didula MD V2 💚 Wa-BOT connected successful ✅\n\nPREFIX: ${prefix}`;
-      conn.sendMessage(ownerNumber + "@s.whatsapp.net", { image: { url: `https://i.ibb.co/tC37Q7B/20241220-122443.jpg` }, caption: up });
+      let up = `* **👨‍💻 ꜱʜᴀꜱɴɪ-ᴍᴅ 👨‍💻 successfully connected* ✓ Use .Update command to see Shasni md new update news > ◦ *Official GitHub* - https://github.com/Denuwan-md/Shashi-MD ◦ ᴊᴏɪɴ ᴏᴜʀ sᴜᴘᴘᴏʀᴛ ɢʀᴏᴜᴘ ᴠɪᴀ ᴛʏᴘᴇ: .owner *👨‍💻 ꜱʜᴀꜱɴɪ-ᴍᴅ 👨‍💻 ᴡʜᴀᴛꜱᴀᴘᴘ ᴜꜱᴇʀ ʙᴏᴛ**ᴄʀᴇᴀᴛᴇᴅ ʙʏ • ᴅᴇɴᴜᴡᴀɴ ᴋᴀᴜꜱʜɪᴋᴀ* ✅\n\nPREFIX: ${prefix}`;
+      conn.sendMessage(ownerNumber + "@s.whatsapp.net", { image: { url: `https://i.ibb.co/JRpGGdBZ/1296.jpg` }, caption: up });
     }
   });
   conn.ev.on('creds.update', saveCreds);
@@ -156,7 +156,6 @@ async function connectToWA() {
         return conn.sendMessage(jid, { audio: await getBuffer(url), caption: caption, mimetype: 'audio/mpeg', ...options }, { quoted: quoted, ...options });
       }
     }
-
     // Always set the bot's presence status to 'unavailable'
     conn.sendPresenceUpdate('unavailable'); // Sets the bot's last seen status
 
