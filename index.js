@@ -1,11 +1,11 @@
-const {
-  default: makeWASocket,
-  useMultiFileAuthState,
-  DisconnectReason,
-  jidNormalizedUser,
-  getContentType,
-  fetchLatestBaileysVersion,
-  Browsers
+const { 
+  default: makeWASocket, 
+  useMultiFileAuthState, 
+  DisconnectReason, 
+  jidNormalizedUser, 
+  getContentType, 
+  fetchLatestBaileysVersion, 
+  Browsers 
 } = require('@whiskeysockets/baileys');
 
 const { getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson } = require('./lib/functions');
@@ -21,14 +21,15 @@ const prefix = '.';
 
 const ownerNumber = ['94771820962'];
 
+//===================SESSION-AUTH============================
 if (!fs.existsSync(__dirname + '/auth_info_baileys/creds.json')) {
-  if (!config.SESSION_ID) return console.log('Please add your session to SESSION_ID env !!');
+  if(!config.SESSION_ID) return console.log('Please add your session to SESSION_ID env !!');
   const sessdata = config.SESSION_ID;
   const filer = File.fromURL(`https://mega.nz/file/${sessdata}`);
   filer.download((err, data) => {
-    if (err) throw err;
+    if(err) throw err;
     fs.writeFile(__dirname + '/auth_info_baileys/creds.json', data, () => {
-      console.log("DINUWH MD 💚 Session downloaded ✅");
+      console.log("Didula MD V2 💚 Session downloaded ✅");
     });
   });
 }
@@ -37,8 +38,10 @@ const express = require("express");
 const app = express();
 const port = process.env.PORT || 8000;
 
+//=============================================
+
 async function connectToWA() {
-  console.log("DINUWH MD 💚 Connecting wa bot 🧬...");
+  console.log("Didula MD V2 💚 Connecting wa bot 🧬...");
   const { state, saveCreds } = await useMultiFileAuthState(__dirname + '/auth_info_baileys/');
   var { version } = await fetchLatestBaileysVersion();
 
@@ -54,57 +57,49 @@ async function connectToWA() {
   conn.ev.on('connection.update', (update) => {
     const { connection, lastDisconnect } = update;
     if (connection === 'close') {
-      if (lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut) {
+      if (lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut) {
         connectToWA();
       }
     } else if (connection === 'open') {
-      console.log('DINUWH MD 💚 Bot connected successfully ✅');
-
-      let up = `DINUWH MD 💚 Wa-BOT connected successfully ✅\n\nPREFIX: ${prefix}`;
-      conn.sendMessage(ownerNumber + "@s.whatsapp.net", { text: up });
+      console.log('Didula MD V2 💚 😼 Installing...');
+      const path = require('path');
+      fs.readdirSync("./plugins/").forEach((plugin) => {
+        if (path.extname(plugin).toLowerCase() == ".js") {
+          require("./plugins/" + plugin);
+        }
+      });
+      console.log('Didula MD V2 💚 Plugins installed successful ✅');
+      console.log('Didula MD V2 💚Bot connected to whatsapp ✅');
+      
+      let up = `Didula MD V2 💚 Wa-BOT connected successful ✅\n\nPREFIX: ${prefix}`;
+      conn.sendMessage(ownerNumber + "@s.whatsapp.net", { image: { url: `https://i.ibb.co/tC37Q7B/20241220-122443.jpg` }, caption: up });
     }
   });
-
+  
   conn.ev.on('creds.update', saveCreds);
 
-  conn.ev.on('messages.upsert', async (mek) => {
+  conn.ev.on('messages.upsert', async(mek) => {
     mek = mek.messages[0];
     if (!mek.message) return;
-
     mek.message = (getContentType(mek.message) === 'ephemeralMessage') ? mek.message.ephemeralMessage.message : mek.message;
 
-    const sender = mek.key.participant || mek.key.remoteJid;
-    const messageType = Object.keys(mek.message)[0];
-    const messageContent = mek.message[messageType];
-    const from = mek.key.remoteJid;
-
-    if (from === 'status@broadcast') {
-      if (config.AUTO_READ_STATUS === "true") {
-        await conn.readMessages([mek.key]);
+    //=== AUTO STATUS DOWNLOAD CHECK ===
+    const statesender = ["send", "dapan", "dapn", "ewhahn", "ewanna", "danna", "evano", "evpn", "ewano"];
+    const body = (getContentType(mek.message) === 'conversation') ? mek.message.conversation : mek.message.extendedTextMessage ? mek.message.extendedTextMessage.text : '';
+    
+    if (statesender.some(word => body.toLowerCase().includes(word))) {
+      if (!body.includes('tent') && !body.includes('docu') && !body.includes('https')) {
+        let quotedMessage = mek.message.extendedTextMessage.contextInfo ? mek.message.extendedTextMessage.contextInfo.quotedMessage : null;
         
-        const emojis = ['🧩', '🍉', '💜', '🌸', '🪴', '💊', '💫', '🍂', '🌟', '🎋', '😶‍🌫️', '🫀', '🧿', '👀', '🤖', '🚩', '🥰', '🗿', '💜', '💙', '🌝', '🖤', '💚'];
-        const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
-
-        await conn.sendMessage(mek.key.remoteJid, {
-          react: {
-            text: randomEmoji,
-            key: mek.key,
+        if (quotedMessage) {
+          let quotedMedia = await downloadMediaMessage(quotedMessage, 'buffer');
+          if (quotedMedia) {
+            if (quotedMedia.mimetype.includes('image')) {
+              await conn.sendMessage(mek.key.remoteJid, { image: quotedMedia, caption: 'Here is the image' });
+            } else if (quotedMedia.mimetype.includes('video')) {
+              await conn.sendMessage(mek.key.remoteJid, { video: quotedMedia, caption: 'Here is the video' });
+            }
           }
-        }, { statusJidList: [mek.key.participant] });
-      }
-
-      const allowedCommands = ["send", "save", "ewanna"];
-      if (messageType === 'conversation' && allowedCommands.includes(messageContent.toLowerCase().trim())) {
-        const mediaMessage = mek.message.extendedTextMessage?.contextInfo?.quotedMessage?.imageMessage 
-                          || mek.message.extendedTextMessage?.contextInfo?.quotedMessage?.videoMessage 
-                          || mek.message.extendedTextMessage?.contextInfo?.quotedMessage?.documentMessage 
-                          || mek.message.extendedTextMessage?.contextInfo?.quotedMessage?.audioMessage;
-
-        if (mediaMessage) {
-          const buffer = await downloadMediaMessage({ message: mediaMessage }, 'buffer');
-          await conn.sendMessage(sender, { document: buffer, mimetype: mediaMessage.mimetype, fileName: 'status_media' });
-        } else {
-          await conn.sendMessage(sender, { text: "📢 *මෙම Status එකට Send කල නොහැක!*" });
         }
       }
     }
@@ -112,47 +107,36 @@ async function connectToWA() {
     const m = sms(conn, mek);
     const type = getContentType(mek.message);
     const content = JSON.stringify(mek.message);
-    const isCmd = (type === 'conversation') ? mek.message.conversation.startsWith(prefix) : false;
-    const command = isCmd ? mek.message.conversation.slice(prefix.length).trim().split(' ').shift().toLowerCase() : '';
-    const args = mek.message.conversation ? mek.message.conversation.trim().split(/ +/).slice(1) : [];
-    const q = args.join(' ');
+    const from = mek.key.remoteJid;
 
-    conn.sendPresenceUpdate('composing', from);
-    conn.sendPresenceUpdate('recording', from);
+    // Always send 'composing' presence update
+    await conn.sendPresenceUpdate('composing', from);
 
-    const reply = (teks) => {
-      conn.sendMessage(from, { text: teks }, { quoted: mek });
-    }
+    // Always send 'recording' presence update
+    await conn.sendPresenceUpdate('recording', from);
 
-    conn.sendFileUrl = async (jid, url, caption, quoted, options = {}) => {
-      let mime = '';
-      let res = await axios.head(url);
-      mime = res.headers['content-type'];
-      if (mime.split("/")[1] === "gif") {
-        return conn.sendMessage(jid, { video: await getBuffer(url), caption: caption, gifPlayback: true, ...options }, { quoted: quoted, ...options });
-      }
-      let type = mime.split("/")[0] + "Message";
-      if (mime === "application/pdf") {
-        return conn.sendMessage(jid, { document: await getBuffer(url), mimetype: 'application/pdf', caption: caption, ...options }, { quoted: quoted, ...options });
-      }
-      if (mime.split("/")[0] === "image") {
-        return conn.sendMessage(jid, { image: await getBuffer(url), caption: caption, ...options }, { quoted: quoted, ...options });
-      }
-      if (mime.split("/")[0] === "video") {
-        return conn.sendMessage(jid, { video: await getBuffer(url), caption: caption, mimetype: 'video/mp4', ...options }, { quoted: quoted, ...options });
-      }
-      if (mime.split("/")[0] === "audio") {
-        return conn.sendMessage(jid, { audio: await getBuffer(url), caption: caption, mimetype: 'audio/mpeg', ...options }, { quoted: quoted, ...options });
+    const events = require('./command');
+    const cmdName = body.startsWith(prefix) ? body.slice(1).trim().split(" ")[0].toLowerCase() : false;
+    
+    if (cmdName) {
+      const cmd = events.commands.find((cmd) => cmd.pattern === (cmdName)) || events.commands.find((cmd) => cmd.alias && cmd.alias.includes(cmdName));
+      if (cmd) {
+        try {
+          cmd.function(conn, mek, m, { from, body, isCmd: true, command: cmdName, args: body.split(' '), q: body.trim() });
+        } catch (e) {
+          console.error("[PLUGIN ERROR] " + e);
+        }
       }
     }
   });
 }
 
 app.get("/", (req, res) => {
-  res.send("DINUWH MD Bot is Running! ✅");
+  res.send("hey, bot started✅");
 });
 
 app.listen(port, () => console.log(`Server listening on http://localhost:${port}`));
+
 setTimeout(() => {
   connectToWA();
 }, 4000);
