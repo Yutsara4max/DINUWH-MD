@@ -1,7 +1,7 @@
 {
-  "name": "❤️𝐑_𝐎_𝐁_𝐈_𝐍❤️",
-  "description": "Powerful whatsapp bot made by sihilel",
-  "logo": "https://telegra.ph/file/ad25b2227fa2a1a01b707.jpg",
+  "name": "DINUWH-MD",
+  "description": "Javascript WhatsApp bot made by dushan",
+  "logo": "https://i.ibb.co/qk8stS2/Golden-Queen-MD-VIMAMODS-e1bc305ea4f68f19.jpg",
   "keywords": ["bot"],
   "success_url": "/",
 
@@ -9,17 +9,10 @@
     "SESSION_ID": {
       "description": "Put the session-id here.",
       "required": true
-    },  
+    }
 
-    "ALIVE_IMG": {
-      "description": "Put your alive img here.",
-      "required": true
-    },
     
-    "ALIVE_MSG": {
-      "description": "Put your alive msg here.",
-      "required": true
-    }   
+    
 },
 
      "buildpacks": [
