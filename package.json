@@ -4,9 +4,9 @@
   "description": "A WhatsApp bot created using Node.js",
   "main": "index.js",
   "scripts": {
-    "start": "pm2 start index.js --deep-monitoring --attach --name dinuwh_bot",
-    "stop": "pm2 stop dinuwh_bot",
-    "restart": "pm2 restart dinuwh_bot"
+    "start": "pm2 start index.js --deep-monitoring --attach --name DINUWH-MD",
+    "stop": "pm2 stop DINUWH-MD",
+    "restart": "pm2 restart DINUWH-MD"
   },
   "dependencies": {
     "@whiskeysockets/baileys": "^6.7.9",
@@ -27,14 +27,8 @@
     "wa-sticker-formatter": "^4.4.4",
     "xml2js": "^0.6.2",
     "cheerio": "^1.0.0",
-    "@sl-code-lords/movie-api": "^1.0.0",
-    "@sl-code-lords/movie-api": "^1.0.0",
-    "mime-type": "^5.0.2",
-    "@vreden/youtube_scraper": "^1.2.5",
-    "@mrnima/tiktok-downloader": "1.0.0",
-    "g-i-s": "2.1.7",
-    "@sl-code-lords/text-pro-me": "1.0.0",
-    "mrnima-moviedl": "1.0.0",
-    "chalk": "5.4.1"
+    "@sl-code-lords/movie-api": "1.0.0",
+    "@sl-code-lords/movie-api": "1.0.0",
+    "mime-type": "5.0.2"
   }
 }
